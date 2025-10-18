@@ -17,7 +17,6 @@ def index():
 def webhook_receiver():
     json_update = request.get_json(force=True)
     if json_update:
-        # ✅ Instead of asyncio.run()
         asyncio.get_event_loop().create_task(
             process_update_from_json(json_update)
         )
