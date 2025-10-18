@@ -2,10 +2,10 @@ import os
 import signal
 import asyncio
 from flask import Flask, request, jsonify
-from bot import process_update_from_json  # helper from bot.py
+from bot import application, process_update_from_json  # ✅ import BOTH
 
 PORT = int(os.getenv("PORT", "8443"))
-BOT_TOKEN = os.getenv("BOT_TOKEN")  # Telegram webhook path
+BOT_TOKEN = os.getenv("BOT_TOKEN")
 
 app = Flask(__name__)
 
@@ -17,7 +17,10 @@ def index():
 def webhook_receiver():
     json_update = request.get_json(force=True)
     if json_update:
-        asyncio.run(process_update_from_json(json_update))
+        # ✅ Instead of asyncio.run()
+        asyncio.get_event_loop().create_task(
+            process_update_from_json(json_update)
+        )
     return jsonify({"status": "ok"}), 200
 
 def _graceful_shutdown(signum, frame):
