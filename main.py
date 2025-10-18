@@ -2,7 +2,7 @@ import os
 import signal
 import asyncio
 from flask import Flask, request, jsonify
-from bot import application, process_update_from_json  # ✅ import BOTH
+from bot import application, process_update_from_json
 
 PORT = int(os.getenv("PORT", "8443"))
 BOT_TOKEN = os.getenv("BOT_TOKEN")
