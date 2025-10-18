@@ -980,7 +980,9 @@ def main():
     application.add_handler(CallbackQueryHandler(handle_callback_query))
     application.add_error_handler(error_handler)
     
-    # बॉट शुरू करे
+    async def process_update_from_json(update_json: dict):
+‎    update = Update.de_json(update_json, application.bot)
+‎    await application.process_update(update)
 
 if __name__ == '__main__':
     main()
