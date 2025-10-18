@@ -934,7 +934,7 @@ application = ApplicationBuilder().token(BOT_TOKEN).build()
     application.add_handler(CommandHandler("kick", kick_user))
     application.add_handler(CommandHandler("unban", unban_user))
     application.add_handler(CommandHandler("unmute", unmute_user))
-    
+
     # एडमिन प्रबंधन
     application.add_handler(CommandHandler("promote", promote_user))
     application.add_handler(CommandHandler("demote", demote_user))
@@ -978,7 +978,7 @@ application = ApplicationBuilder().token(BOT_TOKEN).build()
     application.add_handler(MessageHandler(filters.TEXT & (~filters.COMMAND), handle_filters))
     application.add_handler(MessageHandler(filters.ALL & (~filters.COMMAND), handle_locks))
     application.add_handler(CallbackQueryHandler(handle_callback_query))
-application.add_error_handler(error_handler)
+    application.add_error_handler(error_handler)
 
 async def process_update_from_json(update_json: dict):
     update = Update.de_json(update_json, application.bot)
