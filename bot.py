@@ -921,7 +921,7 @@ def main():
     if not DATABASE_URL: return # डेटाबेस क्लास पहले से ही लॉग करती है
     
     db.init_db()
-    application = Application.builder().token(BOT_TOKEN).build()
+application = ApplicationBuilder().token(BOT_TOKEN).build()
     
     # सभी कमांड हैंडलर
     # उपयोगकर्ता प्रबंधन
