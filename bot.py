@@ -983,5 +983,7 @@ application.add_error_handler(error_handler)
 async def process_update_from_json(update_json: dict):
     update = Update.de_json(update_json, application.bot)
     await application.process_update(update)
+
 if __name__ == "__main__":
-    async def process_update_from_json(...):  # <- yaha indent 4+4 = 8 spaces hona chahiye!
+    # yaha startup code aayega, e.g.:
+    application.run_polling()
