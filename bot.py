@@ -981,7 +981,7 @@ def main():
     application.add_error_handler(error_handler)
     
     async def process_update_from_json(update_json: dict):
-‎    update = Update.de_json(update_json, application.bot)
+‎    update = Update.de_json(update_json,application.bot)
 ‎    await application.process_update(update)
 
 if __name__ == '__main__':
