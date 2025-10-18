@@ -15,8 +15,20 @@ from typing import Dict, List, Optional, Union, Any
 from functools import wraps
 import uuid
 
-from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup, ChatPermissions
-from telegram.ext import ApplicationBuilder, CommandHandler, MessageHandler, CallbackQueryHandler, ContextTypes, filters
+from telegram import (
+    Update,
+    InlineKeyboardButton,
+    InlineKeyboardMarkup,
+    ChatPermissions
+)
+from telegram.ext import (
+    ApplicationBuilder,
+    CommandHandler,
+    MessageHandler,
+    CallbackQueryHandler,
+    ContextTypes,
+    filters
+)
 from telegram.error import TelegramError, BadRequest, Forbidden
 from telegram.constants import ParseMode
 
@@ -33,14 +45,14 @@ logger = logging.getLogger(__name__)
 # एनवायरनमेंट वेरिएबल्स से कॉन्फ़िगरेशन
 BOT_TOKEN = os.getenv("BOT_TOKEN")
 DATABASE_URL = os.getenv("DATABASE_URL")
-WEBHOOK_URL = os.getenv("WEBHOOK_URL") # Render द्वारा प्रदान किया गया
+WEBHOOK_URL = os.getenv("WEBHOOK_URL")  # Render द्वारा प्रदान किया गया
 PORT = int(os.getenv("PORT", "8443"))
 
 
 class Database:
     """बॉट डेटा के लिए PostgreSQL डेटाबेस हैंडलर"""
 
-    def __init__(self, db_url):
+    def __init__(self, db_url: str):
         self.db_url = db_url
         if not self.db_url:
             logger.error("DATABASE_URL एनवायरनमेंट वेरिएबल में नहीं मिला!")
@@ -71,6 +83,7 @@ class Database:
                         created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
                     )
                 ''')
+
                 # Users टेबल
                 cursor.execute('''
                     CREATE TABLE IF NOT EXISTS users (
@@ -79,128 +92,85 @@ class Database:
                         first_name TEXT,
                         last_name TEXT,
                         is_banned BOOLEAN DEFAULT FALSE,
-                        ban_reason TEXT,
+        # Filters टेबल
+            cursor.execute('''
+                CREATE TABLE IF NOT EXISTS filters (
+                    chat_id BIGINT,
+                    trigger_word TEXT,
+                    response TEXT,
+                    is_private BOOLEAN DEFAULT FALSE,
+                    created_by BIGINT,
+                    created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+                    PRIMARY KEY (chat_id, trigger_word)
+                )
+            ''')
+
+            # Locks टेबल
+            cursor.execute('''
+                CREATE TABLE IF NOT EXISTS locks (
+                    chat_id BIGINT,
+                    lock_type TEXT,
+                    is_locked BOOLEAN DEFAULT TRUE,
+                    PRIMARY KEY (chat_id, lock_type)
+                )
+            ''')
+
+            # Disabled commands टेबल
+            cursor.execute('''
+                CREATE TABLE IF NOT EXISTS disabled_commands (
+                    chat_id BIGINT,
+                    command TEXT,
+                    PRIMARY KEY (chat_id, command)
+                )
+            ''')
+
+            # Federations टेबल
+            cursor.execute('''
+                CREATE TABLE IF NOT EXISTS federations (
+                    fed_id TEXT PRIMARY KEY,
+                    fed_name TEXT,
+                    owner_id BIGINT,
+                    created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+                )
+            ''')
+
+            # Federation bans टेबल
+            cursor.execute('''
+                CREATE TABLE IF NOT EXISTS fed_bans (
+                    fed_id TEXT,
+                    user_id BIGINT,
+                    reason TEXT,
+                    banned_by BIGINT,
+                    created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+                    PRIMARY KEY (fed_id, user_id)
+                )
+            ''')
+
+            # Warnings टेबल
+            cursor.execute('''
+                CREATE TABLE IF NOT EXISTS warnings (
+                    id SERIAL PRIMARY KEY,
+                    chat_id BIGINT,
+                    user_id BIGINT,
+                    reason TEXT,
+                    warned_by BIGINT,
+                    created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+                )
+            ''')
+        conn.commit()
+        logger.info("✅ डेटाबेस तालिकाएँ सफलतापूर्वक प्रारंभ हो गईं।")
+    except Exception as e:
+        logger.error(f"❌ डेटाबेस प्रारंभ करने में त्रुटि: {e}")
+        conn.rollback()
+    finally:
+        conn.close()                ban_reason TEXT,
                         ban_expires TIMESTAMP WITH TIME ZONE,
                         warnings INTEGER DEFAULT 0,
                         last_seen TIMESTAMP WITH TIME ZONE DEFAULT NOW()
                     )
                 ''')
-                # Group restrictions टेबल
-                cursor.execute('''
-                    CREATE TABLE IF NOT EXISTS group_restrictions (
-                        chat_id BIGINT,
-                        user_id BIGINT,
-                        restriction_type TEXT,
-                        expires_at TIMESTAMP WITH TIME ZONE,
-                        reason TEXT,
-                        admin_id BIGINT,
-                        created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
-                        PRIMARY KEY (chat_id, user_id, restriction_type)
-                    )
-                ''')
-                # Filters टेबल
-                cursor.execute('''
-                    CREATE TABLE IF NOT EXISTS filters (
-                        chat_id BIGINT,
-                        trigger_word TEXT,
-                        response TEXT,
-                        is_private BOOLEAN DEFAULT FALSE,
-                        created_by BIGINT,
-                        created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
-                        PRIMARY KEY (chat_id, trigger_word)
-                    )
-                ''')
-                # Locks टेबल
-                cursor.execute('''
-                    CREATE TABLE IF NOT EXISTS locks (
-                        chat_id BIGINT,
-                        lock_type TEXT,
-                        is_locked BOOLEAN DEFAULT TRUE,
-                        PRIMARY KEY (chat_id, lock_type)
-                    )
-                ''')
-                # Disabled commands टेबल
-                cursor.execute('''
-                    CREATE TABLE IF NOT EXISTS disabled_commands (
-                        chat_id BIGINT,
-                        command TEXT,
-                        PRIMARY KEY (chat_id, command)
-                    )
-                ''')
-                # Federation टेबल
-                cursor.execute('''
-                    CREATE TABLE IF NOT EXISTS federations (
-                        fed_id TEXT PRIMARY KEY,
-                        fed_name TEXT,
-                        owner_id BIGINT,
-                        created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
-                    )
-                ''')
-                # Federation bans टेबल
-                cursor.execute('''
-                    CREATE TABLE IF NOT EXISTS fed_bans (
-                        fed_id TEXT,
-                        user_id BIGINT,
-                        reason TEXT,
-                        banned_by BIGINT,
-                        created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
-                        PRIMARY KEY (fed_id, user_id)
-                    )
-                ''')
-                # Warnings टेबल
-                cursor.execute('''
-                    CREATE TABLE IF NOT EXISTS warnings (
-                        id SERIAL PRIMARY KEY,
-                        chat_id BIGINT,
-                        user_id BIGINT,
-                        reason TEXT,
-                        warned_by BIGINT,
-                        created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
-                    )
-                ''')
-            conn.commit()
-            logger.info("डेटाबेस तालिकाएँ सफलतापूर्वक प्रारंभ हो गईं।")
-        except Exception as e:
-            logger.error(f"डेटाबेस प्रारंभ करने में त्रुटि: {e}")
-            conn.rollback()
-        finally:
-            conn.close()
 
-    def execute_query(self, query: str, params: tuple = (), fetch=None):
-        """एक क्वेरी निष्पादित करता है और फ़ेच पैरामीटर के आधार पर परिणाम लौटाता है।"""
-        conn = self.get_connection()
-        try:
-            with conn.cursor() as cursor:
-                cursor.execute(query, params)
-                if fetch == 'one':
-                    result = cursor.fetchone()
-                elif fetch == 'all':
-                    result = cursor.fetchall()
-                else:
-                    result = None
-                conn.commit()
-                return result
-        except Exception as e:
-            logger.error(f"क्वेरी '{query}' पर डेटाबेस त्रुटि: {e}")
-            conn.rollback()
-            return None
-        finally:
-            conn.close()
-
-    def get_group_setting(self, chat_id: int, setting: str):
-        """एक विशिष्ट समूह सेटिंग प्राप्त करें"""
-        result = self.execute_query(
-            f"SELECT {setting} FROM groups WHERE chat_id = %s", (chat_id,), fetch='one'
-        )
-        return result[0] if result else None
-
-    def set_group_setting(self, chat_id: int, setting: str, value):
-        """एक विशिष्ट समूह सेटिंग सेट करें"""
-        query = f"""
-            INSERT INTO groups (chat_id, {setting}) VALUES (%s, %s)
-            ON CONFLICT (chat_id) DO UPDATE SET {setting} = EXCLUDED.{setting};
-        """
-        self.execute_query(query, (chat_id, value))
+                
 
 # डेटाबेस प्रारंभ करें
 db = Database(DATABASE_URL)
@@ -211,24 +181,83 @@ def admin_required(func):
     """यह जांचने के लिए डेकोरेटर कि उपयोगकर्ता एडमिन है या नहीं"""
     @wraps(func)
     async def wrapper(update: Update, context: ContextTypes.DEFAULT_TYPE):
+        if update.effective_chat.type == 'private':# (ऊपर वाले tables के बाद ही होगा)
+    # Group restrictions टेबल
+    cursor.execute('''
+        CREATE TABLE IF NOT EXISTS group_restrictions (
+            chat_id BIGINT,
+            user_id BIGINT,
+            restriction_type TEXT,
+            expires_at TIMESTAMP WITH TIME ZONE,
+            reason TEXT,
+            admin_id BIGINT,
+            created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+            PRIMARY KEY (chat_id, user_id, restriction_type)
+        )
+    ''')
+    conn.commit()
+except Exception as e:
+    logger.error(f"डेटाबेस प्रारंभ करने में त्रुटि: {e}")
+    conn.rollback()
+finally:
+    conn.close()
+
+
+def execute_query(self, query: str, params: tuple = (), fetch: Optional[str] = None):
+    """एक क्वेरी निष्पादित करता है और फ़ेच पैरामीटर के आधार पर परिणाम लौटाता है।"""
+    conn = self.get_connection()
+    try:
+        with conn.cursor() as cursor:
+            cursor.execute(query, params)
+
+            if fetch == 'one':
+                result = cursor.fetchone()
+            elif fetch == 'all':
+                result = cursor.fetchall()
+            else:
+                result = None
+
+            conn.commit()
+            return result
+
+    except Exception as e:
+        logger.error(f"क्वेरी '{query}' पर डेटाबेस त्रुटि: {e}")
+        conn.rollback()
+        return None
+    finally:
+        conn.close()
+
+
+def get_group_setting(self, chat_id: int, setting: str):
+    """एक विशिष्ट समूह सेटिंग प्राप्त करें"""
+    result = self.execute_query(
+        f"SELECT {setting} FROM groups WHERE chat_id = %s",
+        (chat_id,),
+        fetcdef admin_required(func):
+    """यह जांचने के लिए डेकोरेटर कि उपयोगकर्ता एडमिन है या नहीं"""
+    @wraps(func)
+    async def wrapper(update: Update, context: ContextTypes.DEFAULT_TYPE):
         if update.effective_chat.type == 'private':
             return await func(update, context)
-        
+
         user_id = update.effective_user.id
         chat_id = update.effective_chat.id
-        
+
         try:
             member = await context.bot.get_chat_member(chat_id, user_id)
-            if member.status in ['administrator', 'creator']:
+            if member.status in ('administrator', 'creator'):
                 return await func(update, context)
             else:
                 if not db.get_group_setting(chat_id, 'silent_actions'):
-                    await update.message.reply_text("❌ इस कमांड का उपयोग करने के लिए आपको एक एडमिन होना चाहिए।")
+                    await update.message.reply_text(
+                        "❌ इस कमांड का उपयोग करने के लिए आपको एक एडमिन होना चाहिए।"
+                    )
         except Exception as e:
             logger.error(f"एडमिन स्थिति की जाँच करते समय त्रुटि: {e}")
-        
+
         return None
     return wrapper
+
 
 def owner_required(func):
     """यह जांचने के लिए डेकोरेटर कि उपयोगकर्ता समूह का मालिक है या नहीं"""
@@ -236,81 +265,114 @@ def owner_required(func):
     async def wrapper(update: Update, context: ContextTypes.DEFAULT_TYPE):
         if update.effective_chat.type == 'private':
             return await func(update, context)
-        
+
         user_id = update.effective_user.id
         chat_id = update.effective_chat.id
-        
+
         try:
             member = await context.bot.get_chat_member(chat_id, user_id)
             if member.status == 'creator':
                 return await func(update, context)
             else:
-                await update.message.reply_text("❌ केवल समूह का मालिक ही इस कमांड का उपयोग कर सकता है।")
+                await update.message.reply_text(
+                    "❌ केवल समूह का मालिक ही इस कमांड का उपयोग कर सकता है।"
+                )
         except Exception as e:
             logger.error(f"मालिक की स्थिति की जाँच करते समय त्रुटि: {e}")
-        
+
         return None
     return wrapper
+
 
 def parse_time(time_str: str) -> Optional[datetime]:
     """समय स्ट्रिंग जैसे '4m', '3h', '6d', '5w' को डेटटाइम में पार्स करें"""
     if not time_str:
         return None
-    
-    match = re.match(r'^(\d+)([mhdw])$', time_str.lower())
-    if not match: return None
-    
+
+    match = re.match(r"^(\d+)([mhdw])$", time_str.lower())
+    if not match:
+        return None
+
     amount, unit = int(match.group(1)), match.group(2)
-    
-    if unit == 'm': return datetime.now() + timedelta(minutes=amount)
-    if unit == 'h': return datetime.now() + timedelta(hours=amount)
-    if unit == 'd': return datetime.now() + timedelta(days=amount)
-    if unit == 'w': return datetime.now() + timedelta(weeks=amount)
+
+    now = datetime.now()
+    if unit == 'm': return now + timedelta(minutes=amount)
+    if unit == 'h': return now + timedelta(hours=amount)
+    if unit == 'd': return now + timedelta(days=amount)
+    if unit == 'w': return now + timedelta(weeks=amount)
     return None
 
+
 def get_user_from_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    """संदेश से उपयोगकर्ता निकालें (उत्तर, उल्लेख, या आईडी)"""
+    """संदेश से उपयोगकर्ता निकालें (उत्तर, उल्लेख या आईडी)"""
     message = update.effective_message
-    
+
     if message and message.reply_to_message:
         return message.reply_to_message.from_user
-    
-    if context.args and len(context.args) > 0:
-        user_input = context.args[0]
-        if user_input.startswith('@'): user_input = user_input[1:]
-        
+
+    if context.args and context.args[0]:
+        user_input = context.args[0].lstrip('@')
+
+        # Numeric ID
         try:
             return {"id": int(user_input), "username": None, "first_name": "Unknown"}
         except ValueError:
+            # Username
             return {"id": None, "username": user_input, "first_name": user_input}
-    
+
     return None
+
 
 def get_user_id(user_obj):
     """उपयोगकर्ता ऑब्जेक्ट से उपयोगकर्ता आईडी प्राप्त करें"""
-    if user_obj is None: return None
+    if not user_obj:
+        return None
     return getattr(user_obj, 'id', user_obj.get('id') if isinstance(user_obj, dict) else None)
+
 
 def get_user_name(user_obj):
     """उपयोगकर्ता का प्रदर्शन नाम प्राप्त करें"""
-    if user_obj is None: return "Unknown"
+    if not user_obj:
+        return "Unknown"
     return getattr(user_obj, 'first_name', user_obj.get('first_name') if isinstance(user_obj, dict) else "Unknown") or "Unknown"
+
 
 async def log_action(context: ContextTypes.DEFAULT_TYPE, chat_id: int, action: str, details: str):
     """एडमिन क्रियाओं को लॉग चैनल में लॉग करें"""
     log_channel = db.get_group_setting(chat_id, 'log_channel')
-    if not log_channel: return
-    
-    log_message = (f"🔍 **एडमिन एक्शन लॉग**\n\n"
-                   f"**एक्शन:** {action}\n"
-                   f"**विवरण:** {details}\n"
-                   f"**समय:** {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}\n"
-                   f"**चैट:** {chat_id}")
-    
+    if not log_channel:
+        return
+
+    log_message = (
+        f"🔍 **एडमिन एक्शन लॉग**\n\n"
+        f"**एक्शन:** {action}\n"
+        f"**विवरण:** {details}\n"
+        f"**समय:** {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}\n"
+        f"**चैट:** {chat_id}"
+    )
+
     try:
-        await context.bot.send_message(chat_id=log_channel, text=log_message, parse_mode=ParseMode.MARKDOWN)
+        await context.bot.send_message(
+            chat_id=log_channel,
+            text=log_message,
+            parse_mode=ParseMode.MARKDOWN
+        )
     except Exception as e:
-        logger.error(f"लॉग संदेश भेजने में विफल: {e}")
+        logger.error(f"लॉग संदेश भेजने में विफल: {e}")h='one'
+    )
+    return result[0] if result else None
+
+
+def set_group_setting(self, chat_id: int, setting: str, value):
+    """एक विशिष्ट समूह सेटिंग सेट करें"""
+    query = f"""
+        INSERT INTO groups (chat_id, {setting})
+        VALUES (%s, %s)
+        ON CONFLICT (chat_id)
+        DO UPDATE SET {setting} = EXCLUDED.{setting};
+    """
+    self.execute_query(query, (chat_id, value))
+            
 
 user_last_command = {}
 def rate_limit(func):
