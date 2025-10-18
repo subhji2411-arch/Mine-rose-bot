@@ -980,13 +980,7 @@ def main():
     application.add_handler(CallbackQueryHandler(handle_callback_query))
     application.add_error_handler(error_handler)
     
-    # बॉट शुरू करें
-    if WEBHOOK_URL:
-        logger.info(f"वेबहुक मोड में बॉट पोर्ट {PORT} पर शुरू हो रहा है")
-        application.run_webhook(listen="0.0.0.0", port=PORT, url_path=BOT_TOKEN, webhook_url=f"{WEBHOOK_URL}/{BOT_TOKEN}")
-    else:
-        logger.info("स्थानीय विकास के लिए पोलिंग मोड में बॉट शुरू हो रहा है")
-        application.run_polling(allowed_updates=Update.ALL_TYPES)
+    # बॉट शुरू करे
 
 if __name__ == '__main__':
     main()
