@@ -984,6 +984,5 @@ async def process_update_from_json(update_json: dict):
     update = Update.de_json(update_json, application.bot)
     await application.process_update(update)
 
-if __name__ == "__main__":
-    # yaha startup code aayega, e.g.:
-    application.run_polling()
+# if __name__ == "__main__":
+#     application.run_polling()
