@@ -68,35 +68,38 @@ class Database:
         """डेटाबेस तालिकाओं को प्रारंभ करता है"""
         conn = self.get_connection()
         try:
-            with conn.cursor IF NOT EXISTS groups (
-                        chat_id BIGINT PRIMARY KEY,
-                        welcome_message TEXT,
-                        goodbye_message TEXT,
-                        rules TEXT,
-                        private_rules BOOLEAN DEFAULT FALSE,
-                        clean_welcome BOOLEAN DEFAULT FALSE,
-                        clean_service BOOLEAN DEFAULT FALSE,
-                        silent_actions BOOLEAN DEFAULT FALSE,
-                        log_channel BIGINT,
-                        federation_id TEXT,
-                        created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
-                    )
-                ''')
+            with conn.cursor() as cursor:
+    # Groups टेबल
+    cursor.execute('''
+        CREATE TABLE IF NOT EXISTS groups (
+            chat_id BIGINT PRIMARY KEY,
+            welcome_message TEXT,
+            goodbye_message TEXT,
+            rules TEXT,
+            private_rules BOOLEAN DEFAULT FALSE,
+            clean_welcome BOOLEAN DEFAULT FALSE,
+            clean_service BOOLEAN DEFAULT FALSE,
+            silent_actions BOOLEAN DEFAULT FALSE,
+            log_channel BIGINT,
+            federation_id TEXT,
+            created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+        )
+    ''')
 
-                # Users टेबल
-                cursor.execute('''
-                    CREATE TABLE IF NOT EXISTS users (
-                        user_id BIGINT PRIMARY KEY,
-                        username TEXT,
-                        first_name TEXT,
-                        last_name TEXT,
-                        is_banned BOOLEAN DEFAULT FALSE,
-                        ban_reason TEXT,
-                        ban_expires TIMESTAMP WITH TIME ZONE,
-                        warnings INTEGER DEFAULT 0,
-                        last_seen TIMESTAMP WITH TIME ZONE DEFAULT NOW()
-                    )
-                ''')
+    # Users टेबल
+    cursor.execute('''
+        CREATE TABLE IF NOT EXISTS users (
+            user_id BIGINT PRIMARY KEY,
+            username TEXT,
+            first_name TEXT,
+            last_name TEXT,
+            is_banned BOOLEAN DEFAULT FALSE,
+            ban_reason TEXT,
+            ban_expires TIMESTAMP WITH TIME ZONE,
+            warnings INTEGER DEFAULT 0,
+            last_seen TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+        )
+    ''')
 # Group restrictions टेबल
                 cursor.execute('''
                     CREATE TABLE IF NOT EXISTS group_restrictions (
