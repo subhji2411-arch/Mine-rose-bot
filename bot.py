@@ -1364,53 +1364,6 @@ async def handle_locks(update: Update, context: ContextTypes.DEFAULT_TYPE):
         except Exception:
             pass
 
-
-async def handle_callback_query(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    """इनलाइन कीबोर्ड कॉलबैक को संभालें"""
-    query = update.callback_query
-    await query.answer()
-    data = query.data
-    
-    if data.startswith("help_"):
-        category = data.split("_")[1]
-        keyboard = [[InlineKeyboardButton("🔙 श्रेणियों पर वापस जाएँ", callback_data="help_main")]]
-        reply_markup = InlineKeyboardMarkup(keyboard)
-
-# --- इनलाइन हेल्प हैंडलिंग ---
-if category == "main":
-    keyboard = [
-        [InlineKeyboardButton("👥 उपयोगकर्ता प्रबंधन", callback_data="help_users"),
-         InlineKeyboardButton("🛡️ एडमिन उपकरण", callback_data="help_admin")],
-        [InlineKeyboardButton("📝 स्वागत और नियम", callback_data="help_welcome"),
-         InlineKeyboardButton("🔒 ताले और फिल्टर", callback_data="help_locks")],
-        [InlineKeyboardButton("📊 लॉगिंग", callback_data="help_logging"),
-         InlineKeyboardButton("🌐 फेडरेशन", callback_data="help_federation")],
-        [InlineKeyboardButton("⚙️ सेटिंग्स", callback_data="help_settings"),
-         InlineKeyboardButton("🔧 उपयोगिताएँ", callback_data="help_utils")]
-    ]
-    reply_markup = InlineKeyboardMarkup(keyboard)
-
-try:
-    await query.edit_message_text(
-        help_texts.get(category, help_texts["main"]),
-        parse_mode=ParseMode.MARKDOWN,
-        reply_markup=reply_markup
-    )
-except BadRequest:
-    pass
-
-elif data == "support":
-    keyboard = [[InlineKeyboardButton("🔙 मुख्य पर वापस जाएँ", callback_data="help_main")]]
-    try:
-        await query.edit_message_text(
-            support_text,
-            parse_mode=ParseMode.MARKDOWN,
-            reply_markup=InlineKeyboardMarkup(keyboard)
-        )
-    except BadRequest:
-        pass
-
-
 # --- एरर हैंडलर ---
 async def error_handler(update: object, context: ContextTypes.DEFAULT_TYPE) -> None:
     logger.error(f"एक अपडेट को संभालते समय अपवाद: {context.error}")
@@ -1419,7 +1372,51 @@ async def error_handler(update: object, context: ContextTypes.DEFAULT_TYPE) -> N
             await update.effective_message.reply_text("❌ आपके अनुरोध को संसाधित करते समय एक त्रुटि हुई।")
         except:
             pass
+async def handle_callback_query(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    """इनलाइन कीबोर्ड कॉलबैक को संभालें"""
+    query = update.callback_query
+    await query.answer()
+    data = query.data
 
+    # --- हेल्प कॉलबैक हैंडलिंग ---
+    if data.startswith("help_"):
+        category = data.split("_")[1]
+
+        if category == "main":
+            keyboard = [
+                [InlineKeyboardButton("👥 उपयोगकर्ता प्रबंधन", callback_data="help_users"),
+                 InlineKeyboardButton("🛡️ एडमिन उपकरण", callback_data="help_admin")],
+                [InlineKeyboardButton("📝 स्वागत और नियम", callback_data="help_welcome"),
+                 InlineKeyboardButton("🔒 ताले और फिल्टर", callback_data="help_locks")],
+                [InlineKeyboardButton("📊 लॉगिंग", callback_data="help_logging"),
+                 InlineKeyboardButton("🌐 फेडरेशन", callback_data="help_federation")],
+                [InlineKeyboardButton("⚙️ सेटिंग्स", callback_data="help_settings"),
+                 InlineKeyboardButton("🔧 उपयोगिताएँ", callback_data="help_utils")]
+            ]
+        else:
+            keyboard = [[InlineKeyboardButton("🔙 श्रेणियों पर वापस जाएँ", callback_data="help_main")]]
+
+        reply_markup = InlineKeyboardMarkup(keyboard)
+        try:
+            await query.edit_message_text(
+                help_texts.get(category, help_texts["main"]),
+                parse_mode=ParseMode.MARKDOWN,
+                reply_markup=reply_markup
+            )
+        except BadRequest:
+            pass
+
+    # --- सपोर्ट कॉलबैक हैंडलिंग ---
+    elif data == "support":
+        keyboard = [[InlineKeyboardButton("🔙 मुख्य पर वापस जाएँ", callback_data="help_main")]]
+        try:
+            await query.edit_message_text(
+                support_text,
+                parse_mode=ParseMode.MARKDOWN,
+                reply_markup=InlineKeyboardMarkup(keyboard)
+            )
+        except BadRequest:
+            pass
 
 # --- मुख्य फ़ंक्शन ---
 def main():
