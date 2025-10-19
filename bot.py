@@ -4,7 +4,9 @@ MissRose_bot Clone - Comprehensive Telegram Group Management Bot
 Created with 60+ working commands for complete group administration
 """
 
-import os
+import of
+import psycopg2
+import logging 
 import re
 import json
 import logging
@@ -59,17 +61,14 @@ class Database:
             raise ValueError("DATABASE_URL एनवायरनमेंट वेरिएबल सेट नहीं है।")
 
     def get_connection(self):
-        """PostgreSQL डेटाबेस से कनेक्शन स्थापित करता है।"""
-        return psycopg2.connect(self.db_url)
+        """Render PostgreSQL database se secure connection establish karta hai."""
+        return psycopg2.connect(self.db_url, sslmode="require")
 
     def init_db(self):
         """डेटाबेस तालिकाओं को प्रारंभ करता है"""
         conn = self.get_connection()
         try:
-            with conn.cursor() as cursor:
-                # Groups टेबल
-                cursor.execute('''
-                    CREATE TABLE IF NOT EXISTS groups (
+            with conn.cursor IF NOT EXISTS groups (
                         chat_id BIGINT PRIMARY KEY,
                         welcome_message TEXT,
                         goodbye_message TEXT,
