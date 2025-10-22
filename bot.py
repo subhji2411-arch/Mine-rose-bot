@@ -1505,8 +1505,6 @@ else:
     application.run_polling(allowed_updates=Update.ALL_TYPES)
 
 
-# --- एंट्री प्वाइंट ---
-if __name__ == "__main__":
-    main()
+
 
 
