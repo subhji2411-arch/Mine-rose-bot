@@ -64,7 +64,11 @@ class Database:
         """Render PostgreSQL database se secure connection establish karta hai."""
         return psycopg2.connect(self.db_url, sslmode="require")
 
-    def init_db(self):
+    
+        conn.commit()
+    finally:
+        conn.close()
+        def init_db(self):
     """डेटाबेस तालिकाओं को प्रारंभ करता है"""
     conn = self.get_connection()
     try:
@@ -86,6 +90,8 @@ class Database:
                 )
             ''')
         conn.commit()
+    except Exception as e:
+        print("❌ Database init error:", e)
     finally:
         conn.close()
 
