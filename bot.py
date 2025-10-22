@@ -65,26 +65,29 @@ class Database:
         return psycopg2.connect(self.db_url, sslmode="require")
 
     def init_db(self):
-        """डेटाबेस तालिकाओं को प्रारंभ करता है"""
-        conn = self.get_connection()
-        try:
-            with conn.cursor() as cursor:
-    # Groups टेबल
-    cursor.execute('''
-        CREATE TABLE IF NOT EXISTS groups (
-            chat_id BIGINT PRIMARY KEY,
-            welcome_message TEXT,
-            goodbye_message TEXT,
-            rules TEXT,
-            private_rules BOOLEAN DEFAULT FALSE,
-            clean_welcome BOOLEAN DEFAULT FALSE,
-            clean_service BOOLEAN DEFAULT FALSE,
-            silent_actions BOOLEAN DEFAULT FALSE,
-            log_channel BIGINT,
-            federation_id TEXT,
-            created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
-        )
-    ''')
+    """डेटाबेस तालिकाओं को प्रारंभ करता है"""
+    conn = self.get_connection()
+    try:
+        with conn.cursor() as cursor:
+            # Groups टेबल
+            cursor.execute('''
+                CREATE TABLE IF NOT EXISTS groups (
+                    chat_id BIGINT PRIMARY KEY,
+                    welcome_message TEXT,
+                    goodbye_message TEXT,
+                    rules TEXT,
+                    private_rules BOOLEAN DEFAULT FALSE,
+                    clean_welcome BOOLEAN DEFAULT FALSE,
+                    clean_service BOOLEAN DEFAULT FALSE,
+                    silent_actions BOOLEAN DEFAULT FALSE,
+                    log_channel BIGINT,
+                    federation_id TEXT,
+                    created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+                )
+            ''')
+        conn.commit()
+    finally:
+        conn.close()
 
     # Users टेबल
     cursor.execute('''
