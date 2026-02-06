@@ -2909,9 +2909,9 @@ def main():
    application.add_handler(CommandHandler("privaterules", private_rules))
 
 # सामग्री नियंत्रण
-  application.add_handler(CommandHandler("lock", lock_content))
-  application.add_handler(CommandHandler("unlock", unlock_content))
-  application.add_handler(CommandHandler("locks", show_locks))
+application.add_handler(CommandHandler("lock", lock_content))
+application.add_handler(CommandHandler("unlock", unlock_content))
+application.add_handler(CommandHandler("locks", show_locks))
 
 # फिल्टर
   application.add_handler(CommandHandler("filter", add_filter))
