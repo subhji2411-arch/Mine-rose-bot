@@ -1434,17 +1434,17 @@ def main():
     db.init_db()
     application = Application.builder().token(BOT_TOKEN).build()
 
-    # उपयोगकर्ता प्रबंधन
-    application.add_handler(CommandHandler("start", start))
-    application.add_handler(CommandHandler("help", help_command))
-    application.add_handler(CommandHandler("ban", ban_user))
-    application.add_handler(CommandHandler("tban", tban_user))
-    application.add_handler(CommandHandler("mute", mute_user))
-    application.add_handler(CommandHandler("tmute", tmute_user))
-    application.add_handler(CommandHandler("kick", kick_user))
-    application.add_handler(CommandHandler("unban", unban_user))
-    application.add_handler(CommandHandler("unmute", unmute_user))
-    application.add_handler(CommandHandler("promote", promote_user))
+# उपयोगकर्ता प्रबंधन
+  application.add_handler(CommandHandler("start", start))
+  application.add_handler(CommandHandler("help", help_command))
+  application.add_handler(CommandHandler("ban", ban_user))
+  application.add_handler(CommandHandler("tban", tban_user))
+  application.add_handler(CommandHandler("mute", mute_user))
+  application.add_handler(CommandHandler("tmute", tmute_user))
+  application.add_handler(CommandHandler("kick", kick_user))
+  application.add_handler(CommandHandler("unban", unban_user))
+  application.add_handler(CommandHandler("unmute", unmute_user))
+  application.add_handler(CommandHandler("promote", promote_user))
 
 # एडमिन प्रबंधन
  application.add_handler(CommandHandler("promote", promote_user))
