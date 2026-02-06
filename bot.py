@@ -2897,9 +2897,9 @@ def main():
     application.add_handler(CommandHandler("demote", demote_user))
 
 # एडमिन प्रबंधन
- application.add_handler(CommandHandler("promote", promote_user))
- application.add_handler(CommandHandler("demote", demote_user))
- application.add_handler(CommandHandler(["admins", "adminlist"], list_admins))
+    application.add_handler(CommandHandler("promote", promote_user))
+    application.add_handler(CommandHandler("demote", demote_user))
+    application.add_handler(CommandHandler(["admins", "adminlist"], list_admins))
 
 # स्वागत और नियम
  application.add_handler(CommandHandler("setwelcome", set_welcome))
