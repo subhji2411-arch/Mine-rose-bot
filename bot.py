@@ -2902,50 +2902,50 @@ def main():
     application.add_handler(CommandHandler(["admins", "adminlist"], list_admins))
 
 # स्वागत और नियम
- application.add_handler(CommandHandler("setwelcome", set_welcome))
- application.add_handler(CommandHandler("setgoodbye", set_goodbye))
- application.add_handler(CommandHandler("setrules", set_rules))
- application.add_handler(CommandHandler("rules", show_rules))
- application.add_handler(CommandHandler("privaterules", private_rules))
+   application.add_handler(CommandHandler("setwelcome", set_welcome))
+   application.add_handler(CommandHandler("setgoodbye", set_goodbye))
+   application.add_handler(CommandHandler("setrules", set_rules))
+   application.add_handler(CommandHandler("rules", show_rules))
+   application.add_handler(CommandHandler("privaterules", private_rules))
 
 # सामग्री नियंत्रण
- application.add_handler(CommandHandler("lock", lock_content))
- application.add_handler(CommandHandler("unlock", unlock_content))
- application.add_handler(CommandHandler("locks", show_locks))
+  application.add_handler(CommandHandler("lock", lock_content))
+  application.add_handler(CommandHandler("unlock", unlock_content))
+  application.add_handler(CommandHandler("locks", show_locks))
 
 # फिल्टर
- application.add_handler(CommandHandler("filter", add_filter))
- application.add_handler(CommandHandler("stop", remove_filter))
- application.add_handler(CommandHandler("filters", list_filters))
+  application.add_handler(CommandHandler("filter", add_filter))
+  application.add_handler(CommandHandler("stop", remove_filter))
+  application.add_handler(CommandHandler("filters", list_filters))
 
 # चेतावनी प्रणाली
- application.add_handler(CommandHandler("warn", warn_user))
- application.add_handler(CommandHandler(["unwarn", "rmwarn"], remove_warn))
- application.add_handler(CommandHandler("warns", check_warns))
+  application.add_handler(CommandHandler("warn", warn_user))
+  application.add_handler(CommandHandler(["unwarn", "rmwarn"], remove_warn))
+  application.add_handler(CommandHandler("warns", check_warns))
 
 # सेटिंग्स
- application.add_handler(CommandHandler("cleanservice", clean_service))
- application.add_handler(CommandHandler("silent", silent_actions))
- application.add_handler(CommandHandler("cleanwelcome", clean_welcome))
+  application.add_handler(CommandHandler("cleanservice", clean_service))
+  application.add_handler(CommandHandler("silent", silent_actions))
+  application.add_handler(CommandHandler("cleanwelcome", clean_welcome))
 
 # उपयोगिताएँ
- application.add_handler(CommandHandler("info", user_info))
- application.add_handler(CommandHandler("report", report_user))
- application.add_handler(CommandHandler("kickme", kickme))
- application.add_handler(CommandHandler("id", get_id))
+  application.add_handler(CommandHandler("info", user_info))
+  application.add_handler(CommandHandler("report", report_user))
+  application.add_handler(CommandHandler("kickme", kickme))
+  application.add_handler(CommandHandler("id", get_id))
 
 # संदेश और कॉलबैक हैंडलर्स
- application.add_handler(MessageHandler(filters.StatusUpdate.NEW_CHAT_MEMBERS, handle_new_member))
- application.add_handler(MessageHandler(filters.TEXT & (~filters.COMMAND), handle_filters))
- application.add_handler(MessageHandler(filters.ALL & (~filters.COMMAND), handle_locks))
+  application.add_handler(MessageHandler(filters.StatusUpdate.NEW_CHAT_MEMBERS, handle_new_member))
+  application.add_handler(MessageHandler(filters.TEXT & (~filters.COMMAND), handle_filters))
+  application.add_handler(MessageHandler(filters.ALL & (~filters.COMMAND), handle_locks))
   application.add_handler(CallbackQueryHandler(handle_callback_query))
 
 # एरर हैंडलर
-application.add_error_handler(error_handler)
+  application.add_error_handler(error_handler)
 
 
  # Bot run करें
-    application.run_polling()
+  application.run_polling()
     
 
 if __name__ == "__main__":
