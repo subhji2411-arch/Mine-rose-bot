@@ -50,7 +50,6 @@ DATABASE_URL = os.getenv("DATABASE_URL")
 WEBHOOK_URL = os.getenv("WEBHOOK_URL")  # Render द्वारा प्रदान किया गया
 PORT = int(os.getenv("PORT", "8443"))
 
-
 class Database:
     """बॉट डेटा के लिए PostgreSQL डेटाबेस हैंडलर"""
 
@@ -64,137 +63,133 @@ class Database:
         """Render PostgreSQL database se secure connection establish karta hai."""
         return psycopg2.connect(self.db_url, sslmode="require")
 
-    
-        
-    finally:
-        conn.close()
-       
-                    federation_id TEXT,
-                    created_at TIMESTAMP def init_db(self):
-    """डेटाबेस तालिकाओं को प्रारंभ करता है"""
-    conn = self.get_connection()
-    try:
-        with conn.cursor() as cursor:
-            # Groups टेबल
-            cursor.execute('''
-                CREATE TABLE IF NOT EXISTS groups (
-                    chat_id BIGINT PRIMARY KEY,
-                    welcome_message TEXT,
-                    goodbye_message TEXT,
-                    rules TEXT,
-                    private_rules BOOLEAN DEFAULT FALSE,
-                    clean_welcome BOOLEAN DEFAULT FALSE,
-                    clean_service BOOLEAN DEFAULT FALSE,
-                    silent_actions BOOLEAN DEFAULT FALSE,
-                    log_channel BIGINT,
-                    federation_id TEXT,
-                    created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
-                )
-            ''')
+    def init_db(self):
+        """डेटाबेस तालिकाओं को प्रारंभ करता है"""
+        conn = self.get_connection()
+        try:
+            with conn.cursor() as cursor:
+                # Groups टेबल
+                cursor.execute('''
+                    CREATE TABLE IF NOT EXISTS groups (
+                        chat_id BIGINT PRIMARY KEY,
+                        welcome_message TEXT,
+                        goodbye_message TEXT,
+                        rules TEXT,
+                        private_rules BOOLEAN DEFAULT FALSE,
+                        clean_welcome BOOLEAN DEFAULT FALSE,
+                        clean_service BOOLEAN DEFAULT FALSE,
+                        silent_actions BOOLEAN DEFAULT FALSE,
+                        log_channel BIGINT,
+                        federation_id TEXT,
+                        created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+                    )
+                ''')
 
-            # Users टेबल
-            cursor.execute('''
-                CREATE TABLE IF NOT EXISTS users (
-                    user_id BIGINT PRIMARY KEY,
-                    username TEXT,
-                    first_name TEXT,
-                    last_name TEXT,
-                    is_banned BOOLEAN DEFAULT FALSE,
-                    ban_reason TEXT,
-                    ban_expires TIMESTAMP WITH TIME ZONE,
-                    warnings INTEGER DEFAULT 0,
-                    last_seen TIMESTAMP WITH TIME ZONE DEFAULT NOW()
-                )
-            ''')
+                # Users टेबल
+                cursor.execute('''
+                    CREATE TABLE IF NOT EXISTS users (
+                        user_id BIGINT PRIMARY KEY,
+                        username TEXT,
+                        first_name TEXT,
+                        last_name TEXT,
+                        is_banned BOOLEAN DEFAULT FALSE,
+                        ban_reason TEXT,
+                        ban_expires TIMESTAMP WITH TIME ZONE,
+                        warnings INTEGER DEFAULT 0,
+                        last_seen TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+                    )
+                ''')
 
-            # Group restrictions टेबल
-            cursor.execute('''
-                CREATE TABLE IF NOT EXISTS group_restrictions (
-                    chat_id BIGINT,
-                    user_id BIGINT,
-                    restriction_type TEXT,
-                    expires_at TIMESTAMP WITH TIME ZONE,
-                    reason TEXT,
-                    admin_id BIGINT,
-                    created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
-                    PRIMARY KEY (chat_id, user_id, restriction_type)
-                )
-            ''')
+                # Group restrictions टेबल
+                cursor.execute('''
+                    CREATE TABLE IF NOT EXISTS group_restrictions (
+                        chat_id BIGINT,
+                        user_id BIGINT,
+                        restriction_type TEXT,
+                        expires_at TIMESTAMP WITH TIME ZONE,
+                        reason TEXT,
+                        admin_id BIGINT,
+                        created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+                        PRIMARY KEY (chat_id, user_id, restriction_type)
+                    )
+                ''')
 
-            # Filters टेबल
-            cursor.execute('''
-                CREATE TABLE IF NOT EXISTS filters (
-                    chat_id BIGINT,
-                    trigger_word TEXT,
-                    response TEXT,
-                    is_private BOOLEAN DEFAULT FALSE,
-                    created_by BIGINT,
-                    created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
-                    PRIMARY KEY (chat_id, trigger_word)
-                )
-            ''')
+                # Filters टेबल
+                cursor.execute('''
+                    CREATE TABLE IF NOT EXISTS filters (
+                        chat_id BIGINT,
+                        trigger_word TEXT,
+                        response TEXT,
+                        is_private BOOLEAN DEFAULT FALSE,
+                        created_by BIGINT,
+                        created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+                        PRIMARY KEY (chat_id, trigger_word)
+                    )
+                ''')
 
-            # Locks टेबल
-            cursor.execute('''
-                CREATE TABLE IF NOT EXISTS locks (
-                    chat_id BIGINT,
-                    lock_type TEXT,
-                    is_locked BOOLEAN DEFAULT TRUE,
-                    PRIMARY KEY (chat_id, lock_type)
-                )
-            ''')
+                # Locks टेबल
+                cursor.execute('''
+                    CREATE TABLE IF NOT EXISTS locks (
+                        chat_id BIGINT,
+                        lock_type TEXT,
+                        is_locked BOOLEAN DEFAULT TRUE,
+                        PRIMARY KEY (chat_id, lock_type)
+                    )
+                ''')
 
-            # Disabled commands टेबल
-            cursor.execute('''
-                CREATE TABLE IF NOT EXISTS disabled_commands (
-                    chat_id BIGINT,
-                    command TEXT,
-                    PRIMARY KEY (chat_id, command)
-                )
-            ''')
+                # Disabled commands टेबल
+                cursor.execute('''
+                    CREATE TABLE IF NOT EXISTS disabled_commands (
+                        chat_id BIGINT,
+                        command TEXT,
+                        PRIMARY KEY (chat_id, command)
+                    )
+                ''')
 
-            # Federation टेबल
-            cursor.execute('''
-                CREATE TABLE IF NOT EXISTS federations (
-                    fed_id TEXT PRIMARY KEY,
-                    fed_name TEXT,
-                    owner_id BIGINT,
-                    created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
-                )
-            ''')
+                # Federation टेबल
+                cursor.execute('''
+                    CREATE TABLE IF NOT EXISTS federations (
+                        fed_id TEXT PRIMARY KEY,
+                        fed_name TEXT,
+                        owner_id BIGINT,
+                        created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+                    )
+                ''')
 
-            # Federation bans टेबल
-            cursor.execute('''
-                CREATE TABLE IF NOT EXISTS fed_bans (
-                    fed_id TEXT,
-                    user_id BIGINT,
-                    reason TEXT,
-                    banned_by BIGINT,
-                    created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
-                    PRIMARY KEY (fed_id, user_id)
-                )
-            ''')
+                # Federation bans टेबल
+                cursor.execute('''
+                    CREATE TABLE IF NOT EXISTS fed_bans (
+                        fed_id TEXT,
+                        user_id BIGINT,
+                        reason TEXT,
+                        banned_by BIGINT,
+                        created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+                        PRIMARY KEY (fed_id, user_id)
+                    )
+                ''')
 
-            # Warnings टेबल
-            cursor.execute('''
-                CREATE TABLE IF NOT EXISTS warnings (
-                    id SERIAL PRIMARY KEY,
-                    chat_id BIGINT,
-                    user_id BIGINT,
-                    reason TEXT,
-                    warned_by BIGINT,
-                    created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
-                )
-            ''')
+                # Warnings टेबल
+                cursor.execute('''
+                    CREATE TABLE IF NOT EXISTS warnings (
+                        id SERIAL PRIMARY KEY,
+                        chat_id BIGINT,
+                        user_id BIGINT,
+                        reason TEXT,
+                        warned_by BIGINT,
+                        created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+                    )
+                ''')
 
-        conn.commit()
-        logger.info("✅ डेटाबेस तालिकाएँ सफलतापूर्वक प्रारंभ हो गईं।")
-    except Exception as e:
-        logger.error(f"❌ Database init error: {e}")
-        conn.rollback()
-    finally:
-        conn.close()
- 
+            conn.commit()
+            logger.info("डेटाबेस तालिकाएँ सफलतापूर्वक प्रारंभ हो गईं।")
+
+        except Exception as e:
+            logger.error(f"डेटाबेस प्रारंभ करने में त्रुटि: {e}")
+            conn.rollback()
+
+        finally:
+            conn.close()
+
 
     def execute_query(self, query: str, params: tuple = (), fetch=None):
         """क्वेरी निष्पादित करता है और डेटा लौटाता है (यदि fetch सेट हो)"""
