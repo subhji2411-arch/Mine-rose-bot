@@ -2914,9 +2914,10 @@ application.add_handler(CommandHandler("unlock", unlock_content))
 application.add_handler(CommandHandler("locks", show_locks))
 
 # फिल्टर
-  application.add_handler(CommandHandler("filter", add_filter))
-  application.add_handler(CommandHandler("stop", remove_filter))
-  application.add_handler(CommandHandler("filters", list_filters))
+application.add_handler(CommandHandler("filter", add_filter))
+application.add_handler(CommandHandler("stop", remove_filter))
+application.add_handler(CommandHandler("filters", list_filters))
+
 
 # चेतावनी प्रणाली
   application.add_handler(CommandHandler("warn", warn_user))
