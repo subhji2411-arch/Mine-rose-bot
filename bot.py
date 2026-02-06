@@ -2918,11 +2918,10 @@ application.add_handler(CommandHandler("filter", add_filter))
 application.add_handler(CommandHandler("stop", remove_filter))
 application.add_handler(CommandHandler("filters", list_filters))
 
-
 # चेतावनी प्रणाली
-  application.add_handler(CommandHandler("warn", warn_user))
-  application.add_handler(CommandHandler(["unwarn", "rmwarn"], remove_warn))
-  application.add_handler(CommandHandler("warns", check_warns))
+application.add_handler(CommandHandler("warn", warn_user))
+application.add_handler(CommandHandler(["unwarn", "rmwarn"], remove_warn))
+application.add_handler(CommandHandler("warns", check_warns))
 
 # सेटिंग्स
   application.add_handler(CommandHandler("cleanservice", clean_service))
