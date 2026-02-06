@@ -2929,10 +2929,10 @@ application.add_handler(CommandHandler("silent", silent_actions))
 application.add_handler(CommandHandler("cleanwelcome", clean_welcome))
 
 # उपयोगिताएँ
-  application.add_handler(CommandHandler("info", user_info))
-  application.add_handler(CommandHandler("report", report_user))
-  application.add_handler(CommandHandler("kickme", kickme))
-  application.add_handler(CommandHandler("id", get_id))
+application.add_handler(CommandHandler("info", user_info))
+application.add_handler(CommandHandler("report", report_user))
+application.add_handler(CommandHandler("kickme", kickme))
+application.add_handler(CommandHandler("id", get_id))
 
 # संदेश और कॉलबैक हैंडलर्स
   application.add_handler(MessageHandler(filters.StatusUpdate.NEW_CHAT_MEMBERS, handle_new_member))
