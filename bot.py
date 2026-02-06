@@ -4,7 +4,7 @@ MissRose_bot Clone - Comprehensive Telegram Group Management Bot
 Created with 60+ working commands for complete group administration
 """
 
-import of
+import os
 import psycopg2
 import logging 
 import re
@@ -65,7 +65,7 @@ class Database:
         return psycopg2.connect(self.db_url, sslmode="require")
 
     
-        conn.commit()
+        
     finally:
         conn.close()
         def init_db(self):
@@ -74,7 +74,7 @@ class Database:
     try:
         with conn.cursor() as cursor:
             # Groups टेबल
-            cursor.execute('''
+            # cursor.execute('''
                 CREATE TABLE IF NOT EXISTS groups (
                     chat_id BIGINT PRIMARY KEY,
                     welcome_message TEXT,
@@ -89,14 +89,14 @@ class Database:
                     created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
                 )
             ''')
-        conn.commit()
+        
     except Exception as e:
         print("❌ Database init error:", e)
     finally:
         conn.close()
 
     # Users टेबल
-    cursor.execute('''
+   # cursor.execute('''
         CREATE TABLE IF NOT EXISTS users (
             user_id BIGINT PRIMARY KEY,
             username TEXT,
@@ -110,7 +110,7 @@ class Database:
         )
     ''')
 # Group restrictions टेबल
-                cursor.execute('''
+               # cursor.execute('''
                     CREATE TABLE IF NOT EXISTS group_restrictions (
                         chat_id BIGINT,
                         user_id BIGINT,
@@ -124,7 +124,7 @@ class Database:
                 ''')
 
                 # Filters टेबल
-                cursor.execute('''
+               # cursor.execute('''
                     CREATE TABLE IF NOT EXISTS filters (
                         chat_id BIGINT,
                         trigger_word TEXT,
@@ -137,7 +137,7 @@ class Database:
                 ''')
 
                 # Locks टेबल
-                cursor.execute('''
+               # cursor.execute('''
                     CREATE TABLE IF NOT EXISTS locks (
                         chat_id BIGINT,
                         lock_type TEXT,
@@ -147,7 +147,7 @@ class Database:
                 ''')
 
                 # Disabled commands टेबल
-                cursor.execute('''
+               # cursor.execute('''
                     CREATE TABLE IF NOT EXISTS disabled_commands (
                         chat_id BIGINT,
                         command TEXT,
@@ -156,7 +156,7 @@ class Database:
                 ''')
 
                 # Federation टेबल
-                cursor.execute('''
+               # cursor.execute('''
                     CREATE TABLE IF NOT EXISTS federations (
                         fed_id TEXT PRIMARY KEY,
                         fed_name TEXT,
@@ -166,7 +166,7 @@ class Database:
                 ''')
 
                 # Federation bans टेबल
-                cursor.execute('''
+               # cursor.execute('''
                     CREATE TABLE IF NOT EXISTS fed_bans (
                         fed_id TEXT,
                         user_id BIGINT,
@@ -178,7 +178,7 @@ class Database:
                 ''')
 
                 # Warnings टेबल
-                cursor.execute('''
+               # cursor.execute('''
                     CREATE TABLE IF NOT EXISTS warnings (
                         id SERIAL PRIMARY KEY,
                         chat_id BIGINT,
@@ -188,29 +188,27 @@ class Database:
                         created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
                     )
                 ''')
-            conn.commit()
+            
             logger.info("डेटाबेस तालिकाएँ सफलतापूर्वक प्रारंभ हो गईं।")
         except Exception as e:
             logger.error(f"डेटाबेस प्रारंभ करने में त्रुटि: {e}")
             conn.rollback()
         finally:
             conn.close()
-class Database:
-    ...
 
     def execute_query(self, query: str, params: tuple = (), fetch=None):
         """क्वेरी निष्पादित करता है और डेटा लौटाता है (यदि fetch सेट हो)"""
         conn = self.get_connection()
         try:
             with conn.cursor() as cursor:
-                cursor.execute(query, params)
+               # cursor.execute(query, params)
                 if fetch == 'one':
                     result = cursor.fetchone()
                 elif fetch == 'all':
                     result = cursor.fetchall()
                 else:
                     result = None
-                conn.commit()
+            
                 return result
         except Exception as e:
             logger.error(f"क्वेरी त्रुटि: {e}")
@@ -1443,59 +1441,59 @@ def main():
 # --- सभी कमांड हैंडलर ---
 
 # उपयोगकर्ता प्रबंधन
-application.add_handler(CommandHandler("start", start))
-application.add_handler(CommandHandler("help", help_command))
-application.add_handler(CommandHandler("ban", ban_user))
-application.add_handler(CommandHandler("tban", tban_user))
-application.add_handler(CommandHandler("mute", mute_user))
-application.add_handler(CommandHandler("tmute", tmute_user))
-application.add_handler(CommandHandler("kick", kick_user))
-application.add_handler(CommandHandler("unban", unban_user))
-application.add_handler(CommandHandler("unmute", unmute_user))
+# application.add_handler(CommandHandler("start", start))
+# application.add_handler(CommandHandler("help", help_command))
+# application.add_handler(CommandHandler("ban", ban_user))
+# application.add_handler(CommandHandler("tban", tban_user))
+# application.add_handler(CommandHandler("mute", mute_user))
+# application.add_handler(CommandHandler("tmute", tmute_user))
+# application.add_handler(CommandHandler("kick", kick_user))
+# application.add_handler(CommandHandler("unban", unban_user))
+# application.add_handler(CommandHandler("unmute", unmute_user))
 
 # एडमिन प्रबंधन
-application.add_handler(CommandHandler("promote", promote_user))
-application.add_handler(CommandHandler("demote", demote_user))
-application.add_handler(CommandHandler(["admins", "adminlist"], list_admins))
+# application.add_handler(CommandHandler("promote", promote_user))
+# application.add_handler(CommandHandler("demote", demote_user))
+# application.add_handler(CommandHandler(["admins", "adminlist"], list_admins))
 
 # स्वागत और नियम
-application.add_handler(CommandHandler("setwelcome", set_welcome))
-application.add_handler(CommandHandler("setgoodbye", set_goodbye))
-application.add_handler(CommandHandler("setrules", set_rules))
-application.add_handler(CommandHandler("rules", show_rules))
-application.add_handler(CommandHandler("privaterules", private_rules))
+# application.add_handler(CommandHandler("setwelcome", set_welcome))
+# application.add_handler(CommandHandler("setgoodbye", set_goodbye))
+# application.add_handler(CommandHandler("setrules", set_rules))
+# application.add_handler(CommandHandler("rules", show_rules))
+# application.add_handler(CommandHandler("privaterules", private_rules))
 
 # सामग्री नियंत्रण
-application.add_handler(CommandHandler("lock", lock_content))
-application.add_handler(CommandHandler("unlock", unlock_content))
-application.add_handler(CommandHandler("locks", show_locks))
+# application.add_handler(CommandHandler("lock", lock_content))
+# application.add_handler(CommandHandler("unlock", unlock_content))
+# application.add_handler(CommandHandler("locks", show_locks))
 
 # फिल्टर
-application.add_handler(CommandHandler("filter", add_filter))
-application.add_handler(CommandHandler("stop", remove_filter))
-application.add_handler(CommandHandler("filters", list_filters))
+# application.add_handler(CommandHandler("filter", add_filter))
+# application.add_handler(CommandHandler("stop", remove_filter))
+# application.add_handler(CommandHandler("filters", list_filters))
 
 # चेतावनी प्रणाली
-application.add_handler(CommandHandler("warn", warn_user))
-application.add_handler(CommandHandler(["unwarn", "rmwarn"], remove_warn))
-application.add_handler(CommandHandler("warns", check_warns))
+# application.add_handler(CommandHandler("warn", warn_user))
+# application.add_handler(CommandHandler(["unwarn", "rmwarn"], remove_warn))
+# application.add_handler(CommandHandler("warns", check_warns))
 
 # सेटिंग्स
-application.add_handler(CommandHandler("cleanservice", clean_service))
-application.add_handler(CommandHandler("silent", silent_actions))
-application.add_handler(CommandHandler("cleanwelcome", clean_welcome))
+# application.add_handler(CommandHandler("cleanservice", clean_service))
+# application.add_handler(CommandHandler("silent", silent_actions))
+# application.add_handler(CommandHandler("cleanwelcome", clean_welcome))
 
 # उपयोगिताएँ
-application.add_handler(CommandHandler("info", user_info))
-application.add_handler(CommandHandler("report", report_user))
-application.add_handler(CommandHandler("kickme", kickme))
-application.add_handler(CommandHandler("id", get_id))
+# application.add_handler(CommandHandler("info", user_info))
+# application.add_handler(CommandHandler("report", report_user))
+# application.add_handler(CommandHandler("kickme", kickme))
+# application.add_handler(CommandHandler("id", get_id))
 
 # संदेश और कॉलबैक हैंडलर्स
-application.add_handler(MessageHandler(filters.StatusUpdate.NEW_CHAT_MEMBERS, handle_new_member))
-application.add_handler(MessageHandler(filters.TEXT & (~filters.COMMAND), handle_filters))
-application.add_handler(MessageHandler(filters.ALL & (~filters.COMMAND), handle_locks))
-application.add_handler(CallbackQueryHandler(handle_callback_query))
+# application.add_handler(MessageHandler(filters.StatusUpdate.NEW_CHAT_MEMBERS, handle_new_member))
+# application.add_handler(MessageHandler(filters.TEXT & (~filters.COMMAND), handle_filters))
+# application.add_handler(MessageHandler(filters.ALL & (~filters.COMMAND), handle_locks))
+# application.add_handler(CallbackQueryHandler(handle_callback_query))
 
 # एरर हैंडलर
 application.add_error_handler(error_handler)
