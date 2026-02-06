@@ -66,8 +66,8 @@ class Database:
 
     
         
-    finally:
-        conn.close()
+   # finally:
+       # conn.close()
         def init_db(self):
     """डेटाबेस तालिकाओं को प्रारंभ करता है"""
     conn = self.get_connection()
@@ -92,8 +92,8 @@ class Database:
         
     except Exception as e:
         print("❌ Database init error:", e)
-    finally:
-        conn.close()
+   # finally:
+      # conn.close()
 
     # Users टेबल
    # cursor.execute('''
@@ -193,8 +193,8 @@ class Database:
         except Exception as e:
             logger.error(f"डेटाबेस प्रारंभ करने में त्रुटि: {e}")
             conn.rollback()
-        finally:
-            conn.close()
+       # finally:
+           # conn.close()
 
     def execute_query(self, query: str, params: tuple = (), fetch=None):
         """क्वेरी निष्पादित करता है और डेटा लौटाता है (यदि fetch सेट हो)"""
@@ -214,8 +214,8 @@ class Database:
             logger.error(f"क्वेरी त्रुटि: {e}")
             conn.rollback()
             return None
-        finally:
-            conn.close()
+       # finally:
+           # conn.close()
 
     def get_group_setting(self, chat_id: int, setting: str):
         """विशिष्ट सेटिंग प्राप्त करें"""
