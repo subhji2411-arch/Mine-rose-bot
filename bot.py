@@ -2924,9 +2924,9 @@ application.add_handler(CommandHandler(["unwarn", "rmwarn"], remove_warn))
 application.add_handler(CommandHandler("warns", check_warns))
 
 # सेटिंग्स
-  application.add_handler(CommandHandler("cleanservice", clean_service))
-  application.add_handler(CommandHandler("silent", silent_actions))
-  application.add_handler(CommandHandler("cleanwelcome", clean_welcome))
+application.add_handler(CommandHandler("cleanservice", clean_service))
+application.add_handler(CommandHandler("silent", silent_actions))
+application.add_handler(CommandHandler("cleanwelcome", clean_welcome))
 
 # उपयोगिताएँ
   application.add_handler(CommandHandler("info", user_info))
