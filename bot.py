@@ -2935,10 +2935,10 @@ application.add_handler(CommandHandler("kickme", kickme))
 application.add_handler(CommandHandler("id", get_id))
 
 # संदेश और कॉलबैक हैंडलर्स
-  application.add_handler(MessageHandler(filters.StatusUpdate.NEW_CHAT_MEMBERS, handle_new_member))
-  application.add_handler(MessageHandler(filters.TEXT & (~filters.COMMAND), handle_filters))
-  application.add_handler(MessageHandler(filters.ALL & (~filters.COMMAND), handle_locks))
-  application.add_handler(CallbackQueryHandler(handle_callback_query))
+application.add_handler(MessageHandler(filters.StatusUpdate.NEW_CHAT_MEMBERS, handle_new_member))
+application.add_handler(MessageHandler(filters.TEXT & (~filters.COMMAND), handle_filters))
+application.add_handler(MessageHandler(filters.ALL & (~filters.COMMAND), handle_locks))
+application.add_handler(CallbackQueryHandler(handle_callback_query))
 
 # एरर हैंडलर
   application.add_error_handler(error_handler)
