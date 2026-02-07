@@ -2871,16 +2871,20 @@ async def handle_callback_query(update: Update, context: ContextTypes.DEFAULT_TY
             pass
 
 # --- मुख्य फ़ंक्शन ---
-def main():
+async def main():
     """बॉट शुरू करें।"""
     if not BOT_TOKEN:
         return logger.error("BOT_TOKEN एनवायरनमेंट वेरिएबल में नहीं मिला!")
     if not DATABASE_URL:
-        return
+        return logger.error("DATABASE_URL एनवायरनमेंट वेरिएबल में नहीं मिला!")
 
-  #  db.init_db()
+    # डेटाबेस इनिशियलाइज़ करें
+    db.init_db()
+
+    # Telegram Application बनाएँ
     application = Application.builder().token(BOT_TOKEN).build()
 
+    # --- हैंडलर्स जोड़ें ---
     # उपयोगकर्ता प्रबंधन
     application.add_handler(CommandHandler("start", start))
     application.add_handler(CommandHandler("help", help_command))
@@ -2891,8 +2895,6 @@ def main():
     application.add_handler(CommandHandler("kick", kick_user))
     application.add_handler(CommandHandler("unban", unban_user))
     application.add_handler(CommandHandler("unmute", unmute_user))
-
-    # एडमिन प्रबंधन
     application.add_handler(CommandHandler("promote", promote_user))
     application.add_handler(CommandHandler("demote", demote_user))
     application.add_handler(CommandHandler(["admins", "adminlist"], list_admins))
@@ -2931,26 +2933,16 @@ def main():
     application.add_handler(CommandHandler("id", get_id))
 
     # संदेश और कॉलबैक हैंडलर्स
-    application.add_handler(
-        MessageHandler(filters.StatusUpdate.NEW_CHAT_MEMBERS, handle_new_member)
-    )
-    application.add_handler(
-        MessageHandler(filters.TEXT & (~filters.COMMAND), handle_filters)
-    )
-    application.add_handler(
-        MessageHandler(filters.ALL & (~filters.COMMAND), handle_locks)
-    )
+    application.add_handler(MessageHandler(filters.StatusUpdate.NEW_CHAT_MEMBERS, handle_new_member))
+    application.add_handler(MessageHandler(filters.TEXT & (~filters.COMMAND), handle_filters))
+    application.add_handler(MessageHandler(filters.ALL & (~filters.COMMAND), handle_locks))
     application.add_handler(CallbackQueryHandler(handle_callback_query))
 
     # एरर हैंडलर
     application.add_error_handler(error_handler)
 
-    # बॉट स्टार्ट
-    application.run_polling()
-
-
-if __name__ == "__main__":
-    main()
+    # --- बॉट शुरू करें ---
+    await application.run_polling()
 
 
 
