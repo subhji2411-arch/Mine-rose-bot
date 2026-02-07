@@ -2880,7 +2880,7 @@ def main():
     if not DATABASE_URL:
         return
 
-    db.init_db()
+  #  db.init_db()
     application = Application.builder().token(BOT_TOKEN).build()
 
     # उपयोगकर्ता प्रबंधन
